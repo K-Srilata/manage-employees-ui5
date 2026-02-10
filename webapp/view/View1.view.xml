@@ -14,7 +14,7 @@
         <content>
             <form:SimpleForm
                 id="simpleForm"
-                editable="true"
+                editable="{viewModel>/editMode}"
                 layout="ResponsiveGridLayout"
             >
                 <Label
@@ -122,10 +122,15 @@
                 <ToolbarSpacer />
                 <Button
                     id="submit"
-                    text="Submit"
+                    text="submit"
+                    visible="{= ${viewModel>/mode} === 'create' }"
                     type="Emphasized"
                     press="onSubmit"
                 />
+                <Button
+                    text="{= ${viewModel>/editMode} ? 'Save' : 'Edit'}"
+                    visible="{= ${viewModel>/mode} === 'edit' }"
+                    press="onEditPress"/>
                 <Button
                     text="Reset"
                     type="Transparent"
@@ -139,5 +144,4 @@
             </Toolbar>
         </footer>
     </Page>
-    
 </mvc:View>

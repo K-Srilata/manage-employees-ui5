@@ -63,6 +63,9 @@
       "employeeModel": {
         "type": "sap.ui.model.json.JSONModel",
         "uri": "model/employee.json"
+      },
+      "selectedEmployee": {
+        "type": "sap.ui.model.json.JSONModel"
       }
     },
     "resources": {
@@ -94,6 +97,11 @@
           "name": "RouteDetail",
           "pattern": "",
           "target": "TargetDetailView"
+        },
+        {
+          "name": "EmployeeDetail",
+          "pattern": "employeedetail",
+          "target": "TargetEmployeeDetail"
         }
       ],
       "targets": {
@@ -107,6 +115,10 @@
         "TargetDetailView": {
           "viewId": "detail",
           "viewName": "Detail"
+        },
+        "TargetEmployeeDetail": {
+          "viewId": "employeedetail",
+          "viewName": "EmployeeDetail"
         }
       }
     },

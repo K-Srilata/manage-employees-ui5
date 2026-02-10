@@ -21,6 +21,28 @@ sap.ui.define(
 
     return Controller.extend("com.test.manageemployees.controller.View1", {
       onInit: function () {
+        var oViewModel = new sap.ui.model.json.JSONModel({
+          mode: "create",
+          editMode: false,
+        });
+
+        this.getView().setModel(oViewModel, "viewModel");
+
+        this.getOwnerComponent()
+          .getRouter()
+          .getRoute("RouteView1")
+          .attachPatternMatched(this.onRouteMatched, this);
+      },
+      onRouteMatched: function (oEvent) {
+        var sMode = oEvent.getParameter("arguments").mode;
+
+        if (sMode === "edit") {
+          this.getView().getModel("viewModel").setProperty("/mode", "edit");
+          this.getView().getModel("viewModel").setProperty("/editMode", false);
+        } else {
+          this.getView().getModel("viewModel").setProperty("/mode", "create");
+          this.getView().getModel("viewModel").setProperty("/editMode", true);
+        }
       },
       _clearValueStates: function () {
         var aIds = [
@@ -50,10 +72,12 @@ sap.ui.define(
             id: this.getView().getId(),
             name: "com.test.manageemployees.view.DeptValueHelpDailog",
             controller: this,
-          }).then(function (oDialog) {
-            this.getView().addDependent(oDialog);
-            return oDialog;
-          }.bind(this));
+          }).then(
+            function (oDialog) {
+              this.getView().addDependent(oDialog);
+              return oDialog;
+            }.bind(this),
+          );
         }
         this._pValueHelpDialog.then(function (oDialog) {
           var oFilter = new Filter(
@@ -84,7 +108,6 @@ sap.ui.define(
 
           this.byId("department").setValueState("None");
         }
-
       },
       onDeptChange: function (oEvent) {
         var sValue = oEvent.getSource().getValue();
@@ -111,15 +134,15 @@ sap.ui.define(
           .setValueStateText(bValid ? "" : "Please enter valid data");
       },
       onReset: function () {
-        var oModel = this.getView().getModel("employeeModel")
-         oModel.setProperty("/firstName", "");
-          oModel.setProperty("/middleName", "");
-          oModel.setProperty("/lastName", "");
-          oModel.setProperty("/email", "");
-          oModel.setProperty("/phone", "");
-          oModel.setProperty("/department", "");
-          oModel.setProperty("/manager", "");
-          oModel.setProperty("/startDate", "");
+        var oModel = this.getView().getModel("employeeModel");
+        oModel.setProperty("/firstName", "");
+        oModel.setProperty("/middleName", "");
+        oModel.setProperty("/lastName", "");
+        oModel.setProperty("/email", "");
+        oModel.setProperty("/phone", "");
+        oModel.setProperty("/department", "");
+        oModel.setProperty("/manager", "");
+        oModel.setProperty("/startDate", "");
         this._clearValueStates();
       },
       onCancel: function () {
@@ -145,7 +168,19 @@ sap.ui.define(
           }.bind(this),
         });
       },
+      onEditPress: function () {
+        var oVM = this.getView().getModel("viewModel");
+        var bEdit = oVM.getProperty("/editMode");
 
+        // If already editing → Save clicked
+        if (bEdit) {
+          this.onSubmit();
+          return;
+        }
+
+        // else → enable editing
+        oVM.setProperty("/editMode", true);
+      },
       onManagerChange: function (oEvent) {
         var oCombo = oEvent.getSource();
         var sValue = oCombo.getValue();
@@ -234,6 +269,8 @@ sap.ui.define(
         //     return;
         //   }
 
+        var sMode = this.getView().getModel("viewModel").getProperty("/mode");
+
         var bValid = true;
 
         var aFields = [
@@ -277,7 +314,9 @@ sap.ui.define(
         var oEmpModel = this.getView().getModel("employeeModel");
         var sDept = oEmpModel.getProperty("/department");
 
-        var aDepts = this.getView().getModel("deptModel").getProperty("/departments");
+        var aDepts = this.getView()
+          .getModel("deptModel")
+          .getProperty("/departments");
 
         var dValid = false;
 
@@ -298,24 +337,60 @@ sap.ui.define(
 
         oDeptInput.setValueState(ValueState.None);
 
+        // var oData = oEmpModel.getData();
+        // var aEmployees = oEmpModel.getProperty("/employees") || [];
+
+        // var oNewEmployee = {
+        //   firstName: oData.firstName,
+        //   middleName: oData.middleName,
+        //   lastName: oData.lastName,
+        //   email: oData.email,
+        //   phone: oData.phone,
+        //   department: oData.department,
+        //   manager: oData.manager,
+        //   startDate: oData.startDate,
+        // };
+
+        // aEmployees.push(oNewEmployee);
+        // oEmpModel.setProperty("/employees", aEmployees);
+
+        // MessageToast.show("Employee created!");
+        // this.onReset();
+        // this.getOwnerComponent().getRouter().navTo("RouteDetail");
+
         var oData = oEmpModel.getData();
         var aEmployees = oEmpModel.getProperty("/employees") || [];
 
-        var oNewEmployee = {
-          firstName: oData.firstName,
-          middleName: oData.middleName,
-          lastName: oData.lastName,
-          email: oData.email,
-          phone: oData.phone,
-          department: oData.department,
-          manager: oData.manager,
-          startDate: oData.startDate
-        };
+        if (sMode === "create") {
+          var oNewEmployee = {
+            firstName: oData.firstName,
+            middleName: oData.middleName,
+            lastName: oData.lastName,
+            email: oData.email,
+            phone: oData.phone,
+            department: oData.department,
+            manager: oData.manager,
+            startDate: oData.startDate,
+          };
 
-        aEmployees.push(oNewEmployee);
-        oEmpModel.setProperty("/employees", aEmployees);
+          aEmployees.push(oNewEmployee);
+          oEmpModel.setProperty("/employees", aEmployees);
 
-        MessageToast.show("Employee created!");
+          MessageToast.show("Employee created!");
+        } else {
+          //edit
+          var iIndex = aEmployees.findIndex(function (emp) {
+            return emp.email === oData.email;
+          });
+
+          if (iIndex !== -1) {
+            aEmployees[iIndex] = oData;
+            oEmpModel.setProperty("/employees", aEmployees);
+          }
+
+          MessageToast.show("Employee updated!");
+        }
+
         this.onReset();
         this.getOwnerComponent().getRouter().navTo("RouteDetail");
       },
