@@ -88,7 +88,7 @@
       "routes": [
         {
           "name": "RouteView1",
-          "pattern": "view1",
+          "pattern": "view1/{mode}/{path}",
           "target": [
             "TargetView1"
           ]

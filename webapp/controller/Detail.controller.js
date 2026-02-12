@@ -12,7 +12,10 @@ sap.ui.define(
       onInit() { },
       onCreateNewEmployee: function () {
         var oRouter = this.getOwnerComponent().getRouter();
-        oRouter.navTo("RouteView1");
+        oRouter.navTo("RouteView1" , {
+          mode: "create",
+          path: "new"
+        });
       },
       onTogglePress: function (oEvent) {
         var bPressed = oEvent.getParameter("pressed");
@@ -56,23 +59,33 @@ sap.ui.define(
 
       onEmployeePress: function (oEvent) {
 
-        var oEmp = oEvent
-          .getSource()
-          .getBindingContext("employeeModel")
-          .getObject();
+        // var oEmp = oEvent
+        //   .getSource()
+        //   .getBindingContext("employeeModel")
+        //   .getObject();
+        var oEmp = oEvent 
+            .getSource()
+            .getBindingContext("employeeModel")
+            
 
-        var oModel = this.getOwnerComponent().getModel("employeeModel");
+        var sPath = oEmp.getPath();
 
-        oModel.setProperty("/firstName", oEmp.firstName);
-        oModel.setProperty("/middleName", oEmp.middleName);
-        oModel.setProperty("/lastName", oEmp.lastName);
-        oModel.setProperty("/email", oEmp.email);
-        oModel.setProperty("/phone", oEmp.phone);
-        oModel.setProperty("/department", oEmp.department);
-        oModel.setProperty("/manager", oEmp.manager);
-        oModel.setProperty("/startDate", oEmp.startDate);
 
-        this.getOwnerComponent().getRouter().navTo("RouteView1", { mode: "edit" });
+        // var oModel = this.getOwnerComponent().getModel("employeeModel");
+
+        // oModel.setProperty("/firstName", oEmp.firstName);
+        // oModel.setProperty("/middleName", oEmp.middleName);
+        // oModel.setProperty("/lastName", oEmp.lastName);
+        // oModel.setProperty("/email", oEmp.email);
+        // oModel.setProperty("/phone", oEmp.phone);
+        // oModel.setProperty("/department", oEmp.department);
+        // oModel.setProperty("/manager", oEmp.manager);
+        // oModel.setProperty("/startDate", oEmp.startDate);
+
+        this.getOwnerComponent().getRouter().navTo("RouteView1", { 
+          mode: "edit" ,
+          path: encodeURIComponent(sPath) 
+        });
       },
 
 onSearch: function (oEvent) {

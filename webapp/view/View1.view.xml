@@ -22,18 +22,18 @@
                     text="First Name"
                     required="true"
                 />
-                <Input id="firstName" value="{employeeModel>/firstName}"/>
+                <Input id="firstName" value="{employeeModel>firstName}" editable="{viewModel>/editMode}"/>
                 <Label
                     id="middlename"
                     text="Middle Name"
                 />
-                <Input id="middleName" value="{employeeModel>/middleName}"/>
+                <Input id="middleName" value="{employeeModel>middleName}" editable="{viewModel>/editMode}"/>
                 <Label
                     id="lastname"
                     text="Last Name"
                     required="true"
                 />
-                <Input id="lastName" value="{employeeModel>/lastName}"/>
+                <Input id="lastName" value="{employeeModel>lastName}" editable="{viewModel>/editMode}"/>
                 <Label
                     id="email"
                     text="Email Id"
@@ -42,7 +42,7 @@
                 <Input
                     id="emailId"
                     type="Email"
-                    value="{employeeModel>/email}"
+                    value="{employeeModel>email}" editable="{viewModel>/editMode}"
                 />
                 <Label
                     id="phonenumber"
@@ -51,8 +51,9 @@
                 <Input
                     id="phoneNumber"
                     type="Tel"
-                    value="{employeeModel>/phone}"
+                    value="{employeeModel>phone}"
                     maxLength="10"
+                    editable="{viewModel>/editMode}"
                 />
                 <Label
                     id="dept"
@@ -63,10 +64,11 @@
                     id="department"
                     showValueHelp="true"
                     valueHelpRequest="onDeptHelp"
-                    value="{employeeModel>/department}"
+                    value="{employeeModel>department}"
                     valueLiveUpdate="true"
                     showClearIcon="true"
-                    change="onDeptChange"        
+                    change="onDeptChange" 
+                    editable="{viewModel>/editMode}"       
                 />
                 <Label
                     id="date"
@@ -76,7 +78,8 @@
                     id="startDate"
                     displayFormat="dd MMM yyyy"
                     valueFormat="yyyy-MM-dd"
-                    value="{employeeModel>/startDate}"
+                    value="{employeeModel>startDate}"
+                    editable="{viewModel>/editMode}"
                 />
                 <Label
                     id="manager"
@@ -102,8 +105,8 @@
                     items="{managerModel>/managers}"
                     placeholder="Select Manager"
                     showClearIcon="true"
-                    selectedKey="{employeeModel>/manager}"
-                    
+                    selectedKey="{employeeModel>manager}"
+                    editable="{viewModel>/editMode}"
                     change="onManagerChange"
                 >
                     <items>
@@ -135,11 +138,15 @@
                     text="Reset"
                     type="Transparent"
                     press="onReset"
+                    visible="{= ${viewModel>/mode} === 'create' || 
+                    ${viewModel>/editMode}}"
                 />
                 <Button
                     text="Cancel"
                     type="Transparent"
                     press="onCancel"
+                    visible="{= ${viewModel>/mode} === 'create' ||
+                    ${viewModel>/editMode}}"
                 />
             </Toolbar>
         </footer>

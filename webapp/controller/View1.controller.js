@@ -7,6 +7,7 @@ sap.ui.define(
     "sap/ui/model/FilterOperator",
     "sap/m/MessageBox",
     "sap/ui/core/ValueState",
+    "sap/ui/model/json/JSONModel",
   ],
   function (
     Controller,
@@ -16,12 +17,13 @@ sap.ui.define(
     FilterOperator,
     MessageBox,
     ValueState,
+    JSONModel,
   ) {
     "use strict";
 
     return Controller.extend("com.test.manageemployees.controller.View1", {
       onInit: function () {
-        var oViewModel = new sap.ui.model.json.JSONModel({
+        var oViewModel = new JSONModel({
           mode: "create",
           editMode: false,
         });
@@ -35,13 +37,29 @@ sap.ui.define(
       },
       onRouteMatched: function (oEvent) {
         var sMode = oEvent.getParameter("arguments").mode;
-
+        console.log("MODE:", sMode);
+        var sPath = decodeURIComponent(oEvent.getParameter("arguments").path);
+        console.log("PATH:", sPath);
+        var oVM = this.getView().getModel("viewModel");
         if (sMode === "edit") {
-          this.getView().getModel("viewModel").setProperty("/mode", "edit");
-          this.getView().getModel("viewModel").setProperty("/editMode", false);
+          oVM.setProperty("/mode", "edit");
+          oVM.setProperty("/editMode", false);
+          //   this.getView().getModel("viewModel").setProperty("/mode", "edit");
+          //   this.getView().getModel("viewModel").setProperty("/editMode", false);
+          // } else {
+          //   this.getView().getModel("viewModel").setProperty("/mode", "create");
+          //   this.getView().getModel("viewModel").setProperty("/editMode", true);
+          this.getView().bindElement({
+            path: sPath,
+            model: "employeeModel", 
+          });
+          console.log("Binding context:", this.getView().getBindingContext("employeeModel"));
         } else {
-          this.getView().getModel("viewModel").setProperty("/mode", "create");
-          this.getView().getModel("viewModel").setProperty("/editMode", true);
+          oVM.setProperty("/mode", "create");
+          oVM.setProperty("/editMode", true);
+          this.onReset();
+          // this.getView().unbindElement();
+          this.getView().bindElement({ path: "/", model: "employeeModel" })
         }
       },
       _clearValueStates: function () {
@@ -63,7 +81,6 @@ sap.ui.define(
           }.bind(this),
         );
       },
-
       onDeptHelp: function (oEvent) {
         var sInputValue = oEvent.getSource().getValue();
 
@@ -102,9 +119,13 @@ sap.ui.define(
 
         if (oSelectedItem) {
           var sDept = oSelectedItem.getTitle();
-          this.getView()
-            .getModel("employeeModel")
-            .setProperty("/department", sDept);
+          // this.getView()
+          //   .getModel("employeeModel")
+          //   .setProperty("/department", sDept);
+          var oModel = this.getView().getModel("employeeModel");
+          var oContext = this.getView().getBindingContext("employeeModel");
+          var sPath = oContext ? "department" : "/department";
+          oModel.setProperty(sPath, sDept, oContext);
 
           this.byId("department").setValueState("None");
         }
@@ -135,14 +156,17 @@ sap.ui.define(
       },
       onReset: function () {
         var oModel = this.getView().getModel("employeeModel");
-        oModel.setProperty("/firstName", "");
-        oModel.setProperty("/middleName", "");
-        oModel.setProperty("/lastName", "");
-        oModel.setProperty("/email", "");
-        oModel.setProperty("/phone", "");
-        oModel.setProperty("/department", "");
-        oModel.setProperty("/manager", "");
-        oModel.setProperty("/startDate", "");
+        var oContext = this.getView().getBindingContext("employeeModel");
+        var sPath = oContext ? "" : "/";
+        oModel.setProperty(sPath + "firstName", "", oContext);
+        oModel.setProperty(sPath + "middleName", "", oContext);
+        oModel.setProperty(sPath + "lastName", "", oContext);
+        oModel.setProperty(sPath + "email", "", oContext);
+        oModel.setProperty(sPath + "phone", "", oContext);
+        oModel.setProperty(sPath + "department", "", oContext);
+        oModel.setProperty(sPath + "manager", "", oContext);
+        oModel.setProperty(sPath + "managerId", "", oContext);
+        oModel.setProperty(sPath + "startDate", "", oContext);
         this._clearValueStates();
       },
       onCancel: function () {
@@ -150,17 +174,7 @@ sap.ui.define(
           title: "Confirm",
           onClose: function (sAction) {
             if (sAction === MessageBox.Action.OK) {
-              this.getView().getModel("employeeModel").setData({
-                firstName: "",
-                middleName: "",
-                lastName: "",
-                email: "",
-                phone: "",
-                department: "",
-                managerId: "",
-                startDate: "",
-              });
-              this._clearValueStates();
+              this.onReset();
               // this.getRouter().navTo("RouteDetail");
               var oRouter = this.getOwnerComponent().getRouter();
               oRouter.navTo("RouteDetail");
@@ -186,21 +200,21 @@ sap.ui.define(
         var sValue = oCombo.getValue();
         var sKey = oCombo.getSelectedKey();
 
+        var oModel = this.getView().getModel("employeeModel");
+        var oContext = this.getView().getBindingContext("employeeModel");
+        var sPath = oContext ? "managerId" : "/managerId";
+
         var aManagers = this.getView()
           .getModel("managerModel")
           .getProperty("/managers");
 
         if (sKey) {
-          this.getView()
-            .getModel("employeeModel")
-            .setProperty("/managerId", sKey);
-
+          oModel.setProperty(sPath, sKey, oContext);
           oCombo.setValueState(ValueState.None);
           return;
         }
 
         var oMatch = null;
-
         for (var i = 0; i < aManagers.length; i++) {
           if (aManagers[i].name === sValue) {
             oMatch = aManagers[i];
@@ -215,10 +229,7 @@ sap.ui.define(
         }
 
         oCombo.setSelectedKey(oMatch.id);
-        this.getView()
-          .getModel("employeeModel")
-          .setProperty("/managerId", oMatch.id);
-
+        oModel.setProperty(sPath, oMatch.id, oContext);
         oCombo.setValueState(ValueState.None);
       },
       onSubmit: function () {
@@ -378,20 +389,18 @@ sap.ui.define(
 
           MessageToast.show("Employee created!");
         } else {
-          //edit
-          var iIndex = aEmployees.findIndex(function (emp) {
-            return emp.email === oData.email;
-          });
+          // //edit
+          // var iIndex = aEmployees.findIndex(function (emp) {
+          //   return emp.email === oData.email;
+          // });
 
-          if (iIndex !== -1) {
-            aEmployees[iIndex] = oData;
-            oEmpModel.setProperty("/employees", aEmployees);
-          }
-
+          // if (iIndex !== -1) {
+          //   aEmployees[iIndex] = oData;
+          //   oEmpModel.setProperty("/employees", aEmployees);
+          // }
           MessageToast.show("Employee updated!");
         }
-
-        this.onReset();
+        this.getView().getModel("viewModel").setProperty("/editMode", false);
         this.getOwnerComponent().getRouter().navTo("RouteDetail");
       },
     });
