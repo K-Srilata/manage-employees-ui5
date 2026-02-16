@@ -1,10 +1,12 @@
 sap.ui.define(
-  ["sap/ui/core/mvc/Controller", 
+  [
+    "sap/ui/core/mvc/Controller",
     "com/test/manageemployees/model/formatter",
-  "sap/ui/model/Filter",
-"sap/ui/model/FilterOperator"
-],
-  function (Controller, formatter, Filter, FilterOperator) {
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+    "sap/m/MessageToast",
+  ],
+  function (Controller, formatter, Filter, FilterOperator, MessageToast) {
     "use strict";
 
     return Controller.extend("com.test.manageemployees.controller.Detail", {
@@ -12,10 +14,22 @@ sap.ui.define(
       onInit() { },
       onCreateNewEmployee: function () {
         var oRouter = this.getOwnerComponent().getRouter();
-        oRouter.navTo("RouteView1" , {
+        oRouter.navTo("RouteView1", {
           mode: "create",
-          path: "new"
+          path: "new",
         });
+      },
+      onThemeSwitch: function (oEvent) {
+        const oToggleButton = oEvent.getSource();
+        const bIsDarkMode = oToggleButton.getPressed();
+        const sNewTheme = bIsDarkMode ? "sap_horizon_dark" : "sap_horizon";
+        sap.ui.getCore().applyTheme(sNewTheme);
+        oToggleButton.setIcon(
+          bIsDarkMode ? "sap-icon://hide" : "sap-icon://lightbulb",
+        );
+        // const oPage = this.byId("page");
+        // oPage.setTitle(bIsDarkMode ? "Dark Mode" : "Light Mode");
+        MessageToast.show(`Switched to ${bIsDarkMode ? "Dark" : "Light"} Mode`);
       },
       onTogglePress: function (oEvent) {
         var bPressed = oEvent.getParameter("pressed");
@@ -58,18 +72,13 @@ sap.ui.define(
       // },
 
       onEmployeePress: function (oEvent) {
-
         // var oEmp = oEvent
         //   .getSource()
         //   .getBindingContext("employeeModel")
         //   .getObject();
-        var oEmp = oEvent 
-            .getSource()
-            .getBindingContext("employeeModel")
-            
+        var oEmp = oEvent.getSource().getBindingContext("employeeModel");
 
         var sPath = oEmp.getPath();
-
 
         // var oModel = this.getOwnerComponent().getModel("employeeModel");
 
@@ -82,45 +91,62 @@ sap.ui.define(
         // oModel.setProperty("/manager", oEmp.manager);
         // oModel.setProperty("/startDate", oEmp.startDate);
 
-        this.getOwnerComponent().getRouter().navTo("RouteView1", { 
-          mode: "edit" ,
-          path: encodeURIComponent(sPath) 
-        });
+        this.getOwnerComponent()
+          .getRouter()
+          .navTo("RouteView1", {
+            mode: "edit",
+            path: encodeURIComponent(sPath),
+          });
       },
 
-onSearch: function (oEvent) {
+      onSearch: function (oEvent) {
+        var sQuery = oEvent.getSource().getValue();
+        var oTable = this.byId("employeeTable");
+        var oList = this.byId("employeelist");
 
-    var sQuery = oEvent.getSource().getValue();
-    var oTable = this.byId("employeeTable");
-    var oList = this.byId("employeelist");
+        var aFilters = [];
 
-    var aFilters = [];
-
-    if (sQuery && sQuery.length > 0) {
-
-        var aSubFilters = [
-            new Filter("firstName", sap.ui.model.FilterOperator.Contains, sQuery),
-            new Filter("lastName", sap.ui.model.FilterOperator.Contains, sQuery),
+        if (sQuery && sQuery.length > 0) {
+          var aSubFilters = [
+            new Filter(
+              "firstName",
+              sap.ui.model.FilterOperator.Contains,
+              sQuery,
+            ),
+            new Filter(
+              "lastName",
+              sap.ui.model.FilterOperator.Contains,
+              sQuery,
+            ),
             new Filter("email", sap.ui.model.FilterOperator.Contains, sQuery),
             new Filter("phone", sap.ui.model.FilterOperator.Contains, sQuery),
-            new Filter("department", sap.ui.model.FilterOperator.Contains, sQuery),
+            new Filter(
+              "department",
+              sap.ui.model.FilterOperator.Contains,
+              sQuery,
+            ),
             new Filter("manager", sap.ui.model.FilterOperator.Contains, sQuery),
-            new Filter("startDate", sap.ui.model.FilterOperator.Contains, sQuery)
+            new Filter(
+              "startDate",
+              sap.ui.model.FilterOperator.Contains,
+              sQuery,
+            ),
+          ];
 
-        ];
-
-        aFilters.push(new Filter({
-            filters: aSubFilters,
-            and: false   // Orcondition
-        }));
-    }
-    //table
-    var oTableBinding = oTable.getBinding("items");
-    oTableBinding.filter(aFilters);
-    //list
-    var oListBinding = oList.getBinding("items");
-    oListBinding.filter(aFilters);
-},
+          aFilters.push(
+            new Filter({
+              filters: aSubFilters,
+              and: false, // Orcondition
+            }),
+          );
+        }
+        //table
+        var oTableBinding = oTable.getBinding("items");
+        oTableBinding.filter(aFilters);
+        //list
+        var oListBinding = oList.getBinding("items");
+        oListBinding.filter(aFilters);
+      },
       //     onHelloHrBtnPress: function () {
       //     // alert("click me")
       //     // var oRouter = sap.ui.core.UIComponent.getRouterFor(this);

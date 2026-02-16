@@ -15,14 +15,14 @@
     />
         <Button press="helloWorldBtnPress" icon="sap-icon://nav-back" id="backBtn"></Button>
     </Page> -->
-    <Page>
+    <Page showHeader="true" id="page">
         <Toolbar id="tool">
             <Title
                 id="employee"
                 text="Employee List"
             />
             <OverflowToolbar>
-				<SearchField liveChange=".onSearch" width="80%" />
+				<SearchField liveChange=".onSearch" width="200px" />
 			</OverflowToolbar>
             <ToolbarSpacer />
             <!-- <SegmentedButton selectionChange="onToggleView">
@@ -52,6 +52,14 @@
                 text="create new employee"
                 press="onCreateNewEmployee"
             />
+            <ToggleButton
+                id="toggleButton"
+                icon="sap-icon://lightbulb" 
+                pressed="false"
+                press=".onThemeSwitch"
+                width="50px"
+                class="sapUiSmallMargin"
+                />
         </Toolbar>
         <Table
             id="employeeTable"
