@@ -72,11 +72,7 @@ sap.ui.define(
       // },
 
       onEmployeePress: function (oEvent) {
-        // var oEmp = oEvent
-        //   .getSource()
-        //   .getBindingContext("employeeModel")
-        //   .getObject();
-        var oEmp = oEvent.getSource().getBindingContext("employeeModel");
+        var oEmp = oEvent.getSource().getBindingContext();
 
         var sPath = oEmp.getPath();
 
@@ -107,38 +103,16 @@ sap.ui.define(
         var aFilters = [];
 
         if (sQuery && sQuery.length > 0) {
-          var aSubFilters = [
-            new Filter(
-              "firstName",
-              sap.ui.model.FilterOperator.Contains,
-              sQuery,
-            ),
-            new Filter(
-              "lastName",
-              sap.ui.model.FilterOperator.Contains,
-              sQuery,
-            ),
-            new Filter("email", sap.ui.model.FilterOperator.Contains, sQuery),
-            new Filter("phone", sap.ui.model.FilterOperator.Contains, sQuery),
-            new Filter(
-              "department",
-              sap.ui.model.FilterOperator.Contains,
-              sQuery,
-            ),
-            new Filter("manager", sap.ui.model.FilterOperator.Contains, sQuery),
-            new Filter(
-              "startDate",
-              sap.ui.model.FilterOperator.Contains,
-              sQuery,
-            ),
-          ];
-
-          aFilters.push(
-            new Filter({
-              filters: aSubFilters,
-              and: false, // Orcondition
-            }),
-          );
+          var oFilter = new Filter({
+            filters: [
+              new Filter("Firstname", FilterOperator.Contains, sQuery),
+              new Filter("Lastname", FilterOperator.Contains, sQuery),
+              new Filter("Emailid", FilterOperator.Contains, sQuery),
+              new Filter("Department", FilterOperator.Contains, sQuery),
+            ],
+            and: false,
+          });
+          aFilters.push(oFilter);
         }
         //table
         var oTableBinding = oTable.getBinding("items");

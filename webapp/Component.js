@@ -36,5 +36,5 @@ sap.ui.define(
         // this.setModel(oModel, "device");
       },
     });
-  }
+  },
 );

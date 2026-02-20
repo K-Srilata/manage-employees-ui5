@@ -15,15 +15,21 @@
     />
         <Button press="helloWorldBtnPress" icon="sap-icon://nav-back" id="backBtn"></Button>
     </Page> -->
-    <Page showHeader="true" id="page">
+    <Page
+        showHeader="true"
+        id="page"
+    >
         <Toolbar id="tool">
             <Title
                 id="employee"
                 text="Employee List"
             />
             <OverflowToolbar>
-				<SearchField liveChange=".onSearch" width="200px" />
-			</OverflowToolbar>
+                <SearchField
+                    liveChange=".onSearch"
+                    width="200px"
+                />
+            </OverflowToolbar>
             <ToolbarSpacer />
             <!-- <SegmentedButton selectionChange="onToggleView">
                     <items>
@@ -54,16 +60,16 @@
             />
             <ToggleButton
                 id="toggleButton"
-                icon="sap-icon://lightbulb" 
+                icon="sap-icon://lightbulb"
                 pressed="false"
                 press=".onThemeSwitch"
                 width="50px"
                 class="sapUiSmallMargin"
-                />
+            />
         </Toolbar>
         <Table
             id="employeeTable"
-            items="{employeeModel>/employees}"
+            items="{/Zemployee_tableSet}"
             growing="true"
         >
             <columns>
@@ -87,25 +93,34 @@
                 </Column>
             </columns>
             <items>
-                <ColumnListItem press="onEmployeePress" type="Navigation">
+                <ColumnListItem
+                    press="onEmployeePress"
+                    type="Navigation"
+                >
                     <cells>
                         <!-- full name using formatter -->
                         <Text
                             text="{
                     parts: [
-                        {path: 'employeeModel>firstName'},
-                        {path: 'employeeModel>lastName'}
+                        {path: 'Firstname'},
+                        {path: 'Lastname'}
                     ],
                     formatter: '.formatter.formatFullName'
-                }"
+                    }"
                         />
                         <!-- expression binding  -->
-                        <!-- <Text text="{= ${employeeModel>firstName} + ' ' + ${employeeModel>lastName} }" /> -->
-                        <Text text="{employeeModel>email}" />
-                        <Text text="{employeeModel>phone}" />
-                        <Text text="{employeeModel>department}" />
-                        <Text text="{employeeModel>startDate}" />
-                        <Text text="{employeeModel>manager}" />
+                        <!-- <Text text="{= ${Firstname} + ' ' + ${Lastname} }" /> -->
+                        <Text text="{Emailid}" />
+                        <Text text="{Phonenumber}" />
+                        <Text text="{Department}" />
+                        <Text text="{
+                            path: 'Startdate',
+                            type: 'sap.ui.model.type.Date',
+                            formatOptions: {
+                                pattern: 'dd MMM yyyy'
+                            }
+                        }" />
+                        <Text text="{Manager}" />
                     </cells>
                 </ColumnListItem>
             </items>
@@ -113,7 +128,7 @@
 
         <List
             id="employeelist"
-            items="{employeeModel>/employees}"
+            items="{/Zemployee_tableSet}"
             growing="true"
             visible="false"
         >
@@ -140,7 +155,10 @@
             <items>
                 <!-- <StandardListItem 
                 title="{employeeModel>firstName}"/> -->
-                <CustomListItem press="onEmployeePress" type="Active">
+                <CustomListItem
+                    press="onEmployeePress"
+                    type="Active"
+                >
                     <HBox
                         class="sapUiSmallMarginBegin sapUiSmallMarginTopBottom"
                         justifyContent="SpaceBetween"
@@ -149,32 +167,34 @@
                             <Text
                                 text="{
                         parts : [
-                            {path: 'employeeModel>firstName'},
-                            {path: 'employeeModel>lastName'}
+                            {path: 'Firstname'},
+                            {path: 'Lastname'}
                         ],
                         formatter: '.formatter.formatFullName'
                         }"
                             />
                         </VBox>
-
                         <VBox>
-                            <Text text="{employeeModel>email}" />
+                            <Text text="{Emailid}" />
                         </VBox>
-
                         <VBox>
-                            <Text text="{employeeModel>phone}" />
+                            <Text text="{Phonenumber}" />
                         </VBox>
-
                         <VBox>
-                            <Text text="{employeeModel>department}" />
+                            <Text text="{Department}" />
                         </VBox>
-
                         <VBox>
-                            <Text text="{employeeModel>startDate}" />
+                            <!-- <Text text="{Startdate}" /> -->
+                            <Text text="{
+                                path: 'Startdate',
+                                type: 'sap.ui.model.type.Date',
+                                formatOptions: {
+                                    pattern: 'dd MMM yyyy'
+                                }
+                            }" />
                         </VBox>
-
                         <VBox>
-                            <Text text="{employeeModel>manager}" />
+                            <Text text="{Manager}" />
                         </VBox>
                     </HBox>
                 </CustomListItem>

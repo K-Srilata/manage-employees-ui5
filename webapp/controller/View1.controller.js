@@ -51,15 +51,25 @@ sap.ui.define(
           //   this.getView().getModel("viewModel").setProperty("/editMode", true);
           this.getView().bindElement({
             path: sPath,
-            model: "employeeModel", 
+            // model: "employeeModel",
           });
-          console.log("Binding context:", this.getView().getBindingContext("employeeModel"));
+          // console.log("Binding context:", this.getView().getBindingContext("employeeModel"));
+          console.log("Binding context:", this.getView().getBindingContext());
         } else {
           oVM.setProperty("/mode", "create");
           oVM.setProperty("/editMode", true);
+
+          // New:OData creation logic using createEntry
+          var oModel = this.getOwnerComponent().getModel();
+          var oContext = oModel.createEntry("/Zemployee_tableSet");
+          this.getView().setBindingContext(oContext);
+
+          /* old code- Handled creation by binding to root "/"
           this.onReset();
           // this.getView().unbindElement();
-          this.getView().bindElement({ path: "/", model: "employeeModel" })
+          // this.getView().bindElement({ path: "/", model: "employeeModel" })
+          this.getView().bindElement({ path: "/" });
+          */
         }
       },
       _clearValueStates: function () {
@@ -122,9 +132,12 @@ sap.ui.define(
           // this.getView()
           //   .getModel("employeeModel")
           //   .setProperty("/department", sDept);
-          var oModel = this.getView().getModel("employeeModel");
-          var oContext = this.getView().getBindingContext("employeeModel");
-          var sPath = oContext ? "department" : "/department";
+          // var oModel = this.getView().getModel("employeeModel");
+          var oModel = this.getView().getModel();
+          // var oContext = this.getView().getBindingContext("employeeModel");
+          var oContext = this.getView().getBindingContext();
+          // var sPath = oContext ? "department" : "/department";
+          var sPath = oContext ? "Department" : "/Department";
           oModel.setProperty(sPath, sDept, oContext);
 
           this.byId("department").setValueState("None");
@@ -155,18 +168,37 @@ sap.ui.define(
           .setValueStateText(bValid ? "" : "Please enter valid data");
       },
       onReset: function () {
-        var oModel = this.getView().getModel("employeeModel");
-        var oContext = this.getView().getBindingContext("employeeModel");
+        var oModel = this.getView().getModel();
+        var oContext = this.getView().getBindingContext();
+
+        // NEW: If we have a creation context, we should clear it correctly
+        if (oContext) {
+          oModel.setProperty("Firstname", "", oContext);
+          oModel.setProperty("Middlename", "", oContext);
+          oModel.setProperty("Lastname", "", oContext);
+          oModel.setProperty("Emailid", "", oContext);
+          oModel.setProperty("Phonenumber", "", oContext);
+          oModel.setProperty("Department", "", oContext);
+          oModel.setProperty("Startdate", "", oContext);
+          oModel.setProperty("Manager", "", oContext);
+        }
+
+        /* OLD CODE - Cleared properties on root "/"
+        // var oModel = this.getView().getModel("employeeModel");
+        var oModel = this.getView().getModel();
+        // var oContext = this.getView().getBindingContext("employeeModel");
+        var oContext = this.getView().getBindingContext();
         var sPath = oContext ? "" : "/";
-        oModel.setProperty(sPath + "firstName", "", oContext);
-        oModel.setProperty(sPath + "middleName", "", oContext);
-        oModel.setProperty(sPath + "lastName", "", oContext);
-        oModel.setProperty(sPath + "email", "", oContext);
-        oModel.setProperty(sPath + "phone", "", oContext);
-        oModel.setProperty(sPath + "department", "", oContext);
-        oModel.setProperty(sPath + "manager", "", oContext);
-        oModel.setProperty(sPath + "managerId", "", oContext);
-        oModel.setProperty(sPath + "startDate", "", oContext);
+        // oModel.setProperty(sPath + "firstName", "", oContext);
+        oModel.setProperty(sPath + "Firstname", "", oContext);
+        oModel.setProperty(sPath + "Middlename", "", oContext);
+        oModel.setProperty(sPath + "Lastname", "", oContext);
+        oModel.setProperty(sPath + "Emailid", "", oContext);
+        oModel.setProperty(sPath + "Phonenumber", "", oContext);
+        oModel.setProperty(sPath + "Department", "", oContext);
+        oModel.setProperty(sPath + "Startdate", "", oContext);
+        oModel.setProperty(sPath + "Manager", "", oContext);
+        */
         this._clearValueStates();
       },
       onCancel: function () {
@@ -200,9 +232,15 @@ sap.ui.define(
         var sValue = oCombo.getValue();
         var sKey = oCombo.getSelectedKey();
 
-        var oModel = this.getView().getModel("employeeModel");
-        var oContext = this.getView().getBindingContext("employeeModel");
+        // var oModel = this.getView().getModel("employeeModel");
+        var oModel = this.getView().getModel();
+        // var oContext = this.getView().getBindingContext("employeeModel");
+        var oContext = this.getView().getBindingContext();
+        var sPath = oContext ? "Manager" : "/Manager";
+
+        /* OLD CODE - used invalid property 'managerId'
         var sPath = oContext ? "managerId" : "/managerId";
+        */
 
         var aManagers = this.getView()
           .getModel("managerModel")
@@ -229,8 +267,12 @@ sap.ui.define(
         }
 
         oCombo.setSelectedKey(oMatch.id);
-        oModel.setProperty(sPath, oMatch.id, oContext);
+        oModel.setProperty(sPath, oMatch.name, oContext);
         oCombo.setValueState(ValueState.None);
+
+        /* OLD CODE - used oMatch.id which is numeric, but backend likely wants name
+        oModel.setProperty(sPath, oMatch.id, oContext);
+        */
       },
       onSubmit: function () {
         //   var oFirstNameInput = this.byId("firstName");
@@ -322,8 +364,16 @@ sap.ui.define(
           return;
         }
 
-        var oEmpModel = this.getView().getModel("employeeModel");
-        var sDept = oEmpModel.getProperty("/department");
+        // var oEmpModel = this.getView().getModel("employeeModel");
+        var oEmpModel = this.getView().getModel();
+        var oContext = this.getView().getBindingContext();
+
+        // New: Correctly fetch Department from context (for createEntry/Edit)
+        var sDept = oEmpModel.getProperty("Department", oContext);
+
+        /* OldCode - Fetched from root "/" which is empty in context-based binding
+        var sDept = oEmpModel.getProperty("/Department");
+        */
 
         var aDepts = this.getView()
           .getModel("deptModel")
@@ -351,55 +401,96 @@ sap.ui.define(
         // var oData = oEmpModel.getData();
         // var aEmployees = oEmpModel.getProperty("/employees") || [];
 
-        // var oNewEmployee = {
-        //   firstName: oData.firstName,
-        //   middleName: oData.middleName,
-        //   lastName: oData.lastName,
-        //   email: oData.email,
-        //   phone: oData.phone,
-        //   department: oData.department,
-        //   manager: oData.manager,
-        //   startDate: oData.startDate,
-        // };
+        // if (sMode === "create") {
+        //   var oNewEmployee = {
+        //     firstName: oData.firstName,
+        //     middleName: oData.middleName,
+        //     lastName: oData.lastName,
+        //     email: oData.email,
+        //     phone: oData.phone,
+        //     department: oData.department,
+        //     manager: oData.manager,
+        //     startDate: oData.startDate,
+        //   };
 
-        // aEmployees.push(oNewEmployee);
-        // oEmpModel.setProperty("/employees", aEmployees);
+        //   aEmployees.push(oNewEmployee);
+        //   oEmpModel.setProperty("/employees", aEmployees);
 
-        // MessageToast.show("Employee created!");
-        // this.onReset();
-        // this.getOwnerComponent().getRouter().navTo("RouteDetail");
+        //   MessageToast.show("Employee created!");
+        // } else {
+        //   // //edit
+        //   // var iIndex = aEmployees.findIndex(function (emp) {
+        //   //   return emp.email === oData.email;
+        //   // });
 
-        var oData = oEmpModel.getData();
-        var aEmployees = oEmpModel.getProperty("/employees") || [];
+        //   // if (iIndex !== -1) {
+        //   //   aEmployees[iIndex] = oData;
+        //   //   oEmpModel.setProperty("/employees", aEmployees);
+        //   // }
+        //   MessageToast.show("Employee updated!");
+        // }
 
-        if (sMode === "create") {
-          var oNewEmployee = {
-            firstName: oData.firstName,
-            middleName: oData.middleName,
-            lastName: oData.lastName,
-            email: oData.email,
-            phone: oData.phone,
-            department: oData.department,
-            manager: oData.manager,
-            startDate: oData.startDate,
-          };
+        // odata
+        var oEmpModel = this.getView().getModel();
+        // var oData = oEmpModel.getData();
 
-          aEmployees.push(oNewEmployee);
-          oEmpModel.setProperty("/employees", aEmployees);
+        var oModel = this.getView().getModel(); // Get the default OData model
 
-          MessageToast.show("Employee created!");
-        } else {
-          // //edit
-          // var iIndex = aEmployees.findIndex(function (emp) {
-          //   return emp.email === oData.email;
-          // });
+        var oModel = this.getView().getModel();
+        var oContext = this.getView().getBindingContext();
 
-          // if (iIndex !== -1) {
-          //   aEmployees[iIndex] = oData;
-          //   oEmpModel.setProperty("/employees", aEmployees);
-          // }
-          MessageToast.show("Employee updated!");
+        // New: Retrieve data from the current context (works for both CreateEntry and Edit context)
+        var oNewEmployee = oContext
+          ? oContext.getObject()
+          : {
+              Firstname: oModel.getProperty("/Firstname"),
+              Lastname: oModel.getProperty("/Lastname"),
+              Middlename: oModel.getProperty("/Middlename"),
+              Emailid: oModel.getProperty("/Emailid"),
+              Phonenumber: oModel.getProperty("/Phonenumber"),
+              Department: oModel.getProperty("/Department"),
+              Startdate: oModel.getProperty("/Startdate"),
+              Manager: oModel.getProperty("/Manager"),
+            };
+
+        // Ensure Manager is included if not in context object
+        if (oNewEmployee && !oNewEmployee.Manager) {
+          oNewEmployee.Manager = oModel.getProperty("Manager", oContext);
         }
+
+        /* Old Code - Manually fetched from root
+        var oNewEmployee = {
+          Firstname: oModel.getProperty("/Firstname"),
+          Lastname: oModel.getProperty("/Lastname"),
+          Middlename: oModel.getProperty("/Middlename"),
+          Emailid: oModel.getProperty("/Emailid"),
+          Phonenumber: oModel.getProperty("/Phonenumber"),
+          Department: oModel.getProperty("/Department"),
+          StartDate: oModel.getProperty("/Startdate")
+        };
+        */
+        if (sMode === "create") {
+          // 2. Call .create() to send a POST request to SAP
+          oModel.create("/Zemployee_tableSet", oNewEmployee, {
+            success: function () {
+              sap.m.MessageToast.show("Employee saved to SAP table!");
+              this.getOwnerComponent().getRouter().navTo("RouteDetail");
+            }.bind(this),
+            error: function () {
+              sap.m.MessageBox.error("SAP refused to save the data.");
+            },
+          });
+        } else {
+          // 3. For Edit mode, we call .update()
+          var sPath = this.getView().getBindingContext().getPath();
+          oModel.update(sPath, oNewEmployee, {
+            success: function () {
+              sap.m.MessageToast.show("Employee updated in SAP!");
+              this.getOwnerComponent().getRouter().navTo("RouteDetail");
+            }.bind(this),
+          });
+        }
+
         this.getView().getModel("viewModel").setProperty("/editMode", false);
         this.getOwnerComponent().getRouter().navTo("RouteDetail");
       },

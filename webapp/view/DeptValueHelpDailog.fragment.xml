@@ -1,5 +1,8 @@
-<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
-	<!-- <SelectDialog
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <!-- <SelectDialog
 		id="selectDialog"
 		title="Products"
 		items="{/ProductCollection}"
@@ -15,15 +18,14 @@
 			description="{ProductId}" />
 	</SelectDialog> -->
 
-    <SelectDialog 
+    <SelectDialog
         id="deptSelectDialog"
         title="Select Department"
         items="{deptModel>/departments}"
         search=".onDeptSearch"
         confirm=".onDeptConfirm"
-        cancel=".onDeptConfirm">
-        
-        <StandardListItem title="{deptModel>dept}"></StandardListItem>
-        </SelectDialog>
-        
+        cancel=".onDeptConfirm"
+    >
+        <StandardListItem title="{deptModel>dept}" />
+    </SelectDialog>
 </core:FragmentDefinition>
