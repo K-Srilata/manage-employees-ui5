@@ -18,6 +18,7 @@
     <Page
         showHeader="true"
         id="page"
+        enableScrolling="true"
     >
         <Toolbar id="tool">
             <Title
@@ -29,6 +30,10 @@
                     liveChange=".onSearch"
                     width="200px"
                 />
+                <Button 
+                    icon="sap-icon://sort" 
+                    press="onSort" 
+                    tooltip="Sort by Department" />
             </OverflowToolbar>
             <ToolbarSpacer />
             <!-- <SegmentedButton selectionChange="onToggleView">
@@ -69,7 +74,7 @@
         </Toolbar>
         <Table
             id="employeeTable"
-            items="{/Zemployee_tableSet}"
+            items="{path: '/Zemployee_tableSet', sorter:{path: 'Department',descending:false} }"
             growing="true"
         >
             <columns>
@@ -113,11 +118,12 @@
                         <Text text="{Emailid}" />
                         <Text text="{Phonenumber}" />
                         <Text text="{Department}" />
-                        <Text text="{
-                            path: 'Startdate',
-                            type: 'sap.ui.model.type.Date',
-                            formatOptions: {
-                                pattern: 'dd MMM yyyy'
+                        <!-- <Text text="{Startdate}" /> -->
+                        <Text text = " {
+                            path : 'Startdate',
+                            type : 'sap.ui.model.type.Date',
+                            formatOptions : {
+                                pattern : 'dd MM yyyy'
                             }
                         }" />
                         <Text text="{Manager}" />

@@ -74,6 +74,7 @@ sap.ui.define(
       },
       _clearValueStates: function () {
         var aIds = [
+          "employeeId",
           "firstName",
           "lastName",
           "emailId",
@@ -173,6 +174,7 @@ sap.ui.define(
 
         // NEW: If we have a creation context, we should clear it correctly
         if (oContext) {
+          oModel.setProperty("Empid", "", oContext);
           oModel.setProperty("Firstname", "", oContext);
           oModel.setProperty("Middlename", "", oContext);
           oModel.setProperty("Lastname", "", oContext);
@@ -274,6 +276,34 @@ sap.ui.define(
         oModel.setProperty(sPath, oMatch.id, oContext);
         */
       },
+      onDelete: function () {
+        var oModel = this.getView().getModel();
+        var oContext = this.getView().getBindingContext();
+        var sPath = oContext.getPath();
+        var oRouter = this.getOwnerComponent().getRouter();
+        sap.m.MessageBox.confirm("Permanently delete this employee record?", {
+          title: "Confirm Deletion",
+          actions: [sap.m.MessageBox.Action.OK, sap.m.MessageBox.Action.CANCEL],
+          emphasizedAction: sap.m.MessageBox.Action.OK,
+          onClose: function (sAction) {
+            if (sAction === sap.m.MessageBox.Action.OK) {
+              // Trigger the OData Delete
+              oModel.remove(sPath, {
+                success: function () {
+                  sap.m.MessageToast.show("Employee deleted successfully");
+                  // Navigate back to the list view
+                  oRouter.navTo("RouteDetail");
+                },
+                error: function (oError) {
+                  sap.m.MessageBox.error(
+                    "Error deleting employee. Please try again.",
+                  );
+                },
+              });
+            }
+          }.bind(this),
+        });
+      },
       onSubmit: function () {
         //   var oFirstNameInput = this.byId("firstName");
         //   var sFirstName = oFirstNameInput.getValue();
@@ -327,6 +357,7 @@ sap.ui.define(
         var bValid = true;
 
         var aFields = [
+          { id: "employeeId", msg: "Employee Id is required" },
           { id: "firstName", msg: "First Name is required" },
           { id: "lastName", msg: "Last Name is required" },
           { id: "emailId", msg: "Email is required" },
@@ -439,6 +470,7 @@ sap.ui.define(
         var oModel = this.getView().getModel();
         var oContext = this.getView().getBindingContext();
 
+        /* OLD CODE - Included __metadata or was missing key fields
         // New: Retrieve data from the current context (works for both CreateEntry and Edit context)
         var oNewEmployee = oContext
           ? oContext.getObject()
@@ -457,6 +489,22 @@ sap.ui.define(
         if (oNewEmployee && !oNewEmployee.Manager) {
           oNewEmployee.Manager = oModel.getProperty("Manager", oContext);
         }
+        */
+
+        // NEW: Manually construct sanitized payload without __metadata
+        var oNewEmployee = {
+          Empid: oModel.getProperty("Empid", oContext), // Use value from form
+          Firstname: oModel.getProperty("Firstname", oContext),
+          Lastname: oModel.getProperty("Lastname", oContext),
+          Middlename: oModel.getProperty("Middlename", oContext),
+          Emailid: oModel.getProperty("Emailid", oContext),
+          Phonenumber: oModel.getProperty("Phonenumber", oContext),
+          Department: oModel.getProperty("Department", oContext),
+          Startdate: oModel.getProperty("Startdate", oContext),
+          Manager: oModel.getProperty("Manager", oContext),
+        };
+
+        console.log("Payload to be sent:", oNewEmployee);
 
         /* Old Code - Manually fetched from root
         var oNewEmployee = {

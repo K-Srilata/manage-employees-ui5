@@ -18,6 +18,16 @@
                 layout="ResponsiveGridLayout"
             >
                 <Label
+                    id="empid"
+                    text="Employee Id"
+                    required="true"
+                />
+                <Input
+                    id="employeeId"
+                    value="{Empid}"
+                    editable="{viewModel>/editMode}"
+                />
+                <Label
                     id="firstname"
                     text="First Name"
                     required="true"
@@ -143,6 +153,13 @@
                     type="Emphasized"
                     press="onSubmit"
                 />
+                <Button
+                    text="Delete"
+                    type="Reject"
+                    press="onDelete"
+                    visible="{= ${viewModel>/mode} === 'edit' }"
+                />
+
                 <Button
                     text="{= ${viewModel>/editMode} ? 'Save' : 'Edit'}"
                     visible="{= ${viewModel>/mode} === 'edit' }"

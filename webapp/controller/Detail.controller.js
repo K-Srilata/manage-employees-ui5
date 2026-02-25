@@ -5,8 +5,9 @@ sap.ui.define(
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
+    "sap/ui/model/Sorter"
   ],
-  function (Controller, formatter, Filter, FilterOperator, MessageToast) {
+  function (Controller, formatter, Filter, FilterOperator, MessageToast,Sorter) {
     "use strict";
 
     return Controller.extend("com.test.manageemployees.controller.Detail", {
@@ -18,6 +19,24 @@ sap.ui.define(
           mode: "create",
           path: "new",
         });
+      },
+      onSort: function () {
+        this._bDescending = !this._bDescending;
+
+        var oSorter = new Sorter("Department", this._bDescending);
+
+        var oTable = this.byId("employeeTable")
+        var oList = this.byId("employeelist")
+
+        var oTableBinding = oTable.getBinding("items")
+        var oListBinding = oList.getBinding("items")
+
+        oTableBinding.sort(oSorter)
+        oListBinding.sort(oSorter)
+
+        var sOrder = this._bDescending ? "Descending" : "Ascending";
+
+        MessageToast.show("soerted by department: " + sOrder);
       },
       onThemeSwitch: function (oEvent) {
         const oToggleButton = oEvent.getSource();
@@ -103,16 +122,21 @@ sap.ui.define(
         var aFilters = [];
 
         if (sQuery && sQuery.length > 0) {
-          var oFilter = new Filter({
-            filters: [
-              new Filter("Firstname", FilterOperator.Contains, sQuery),
-              new Filter("Lastname", FilterOperator.Contains, sQuery),
-              new Filter("Emailid", FilterOperator.Contains, sQuery),
-              new Filter("Department", FilterOperator.Contains, sQuery),
-            ],
-            and: false,
-          });
-          aFilters.push(oFilter);
+          var aSubFilters = [
+            new Filter(
+              "Firstname",
+              "EQ",
+              // sap.ui.model.FilterOperator.Contains,
+              sQuery,
+            ),
+          ];
+
+          aFilters.push(
+            new Filter({
+              filters: aSubFilters,
+              and: false, // Orcondition
+            }),
+          );
         }
         //table
         var oTableBinding = oTable.getBinding("items");
