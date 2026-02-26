@@ -24,8 +24,10 @@
                 />
                 <Input
                     id="employeeId"
-                    value="{Empid}"
+                    placeholder="Enter 2 digits"
+                    maxLength="2" 
                     editable="{viewModel>/editMode}"
+                    liveChange="onEmpIdLiveChange"
                 />
                 <Label
                     id="firstname"

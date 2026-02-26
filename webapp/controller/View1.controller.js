@@ -35,11 +35,25 @@ sap.ui.define(
           .getRoute("RouteView1")
           .attachPatternMatched(this.onRouteMatched, this);
       },
+      onEmpIdLiveChange: function (oEvent) {
+       var _oInput = oEvent.getSource();
+       var val = _oInput.getValue();
+      val = val.replace(/[^\d]/g, '');
+      _oInput.setValue(val);
+      },
+
+
       onRouteMatched: function (oEvent) {
         var sMode = oEvent.getParameter("arguments").mode;
         console.log("MODE:", sMode);
         var sPath = decodeURIComponent(oEvent.getParameter("arguments").path);
         console.log("PATH:", sPath);
+
+        // Clear previous element binding and context to prevent data leak
+        this.getView().unbindElement();
+        // this.getView().setBindingContext(null);
+        // this._clearValueStates();
+
         var oVM = this.getView().getModel("viewModel");
         if (sMode === "edit") {
           oVM.setProperty("/mode", "edit");
@@ -220,13 +234,13 @@ sap.ui.define(
         var oVM = this.getView().getModel("viewModel");
         var bEdit = oVM.getProperty("/editMode");
 
-        // If already editing → Save clicked
+        // If already editing Save clicked
         if (bEdit) {
           this.onSubmit();
           return;
         }
 
-        // else → enable editing
+        // else enable editing
         oVM.setProperty("/editMode", true);
       },
       onManagerChange: function (oEvent) {
@@ -362,33 +376,38 @@ sap.ui.define(
           { id: "lastName", msg: "Last Name is required" },
           { id: "emailId", msg: "Email is required" },
           { id: "department", msg: "Department is required" },
+          { id: "managerSelect", msg: "Manager is required" },
         ];
 
         aFields.forEach(
           function (oField) {
             var oControl = this.byId(oField.id);
-            var sValue = oControl.getValue();
-
-            if (!sValue) {
-              oControl.setValueState("Error");
+            // var sValue = oControl.getValue();
+            // var sManagerKey = oControl.getSelectedKey();
+            // var sEntry = oControl.getSelectedKey ?
+            //   oControl.getSelectedKey() : oControl.getValue();
+            var sEntry = (oField.id === "managerSelect") ?
+              oControl.getSelectedKey() : oControl.getValue();
+            if (!sEntry) {
+              oControl.setValueState(ValueState.Error);
               oControl.setValueStateText(oField.msg);
               bValid = false;
             } else {
-              oControl.setValueState("None");
+              oControl.setValueState(ValueState.None);
             }
           }.bind(this),
         );
 
-        var oManager = this.byId("managerSelect");
-        console.log(oManager);
-        var sManagerKey = oManager.getSelectedKey();
-        if (!sManagerKey) {
-          oManager.setValueState(ValueState.Error);
-          oManager.setValueStateText("Please select a valid Manager");
-          bValid = false;
-        } else {
-          oManager.setValueState(ValueState.None);
-        }
+        // var oManager = this.byId("managerSelect");
+        // console.log(oManager);
+        // var sManagerKey = oManager.getSelectedKey();
+        // if (!sManagerKey) {
+        //   oManager.setValueState(ValueState.Error);
+        //   oManager.setValueStateText("Please select a valid Manager");
+        //   bValid = false;
+        // } else {
+        //   oManager.setValueState(ValueState.None);
+        // }
 
         if (!bValid) {
           MessageToast.show("Please fill all required fields");
@@ -540,7 +559,7 @@ sap.ui.define(
         }
 
         this.getView().getModel("viewModel").setProperty("/editMode", false);
-        this.getOwnerComponent().getRouter().navTo("RouteDetail");
+        // this.getOwnerComponent().getRouter().navTo("RouteDetail");
       },
     });
   },

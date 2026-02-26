@@ -124,7 +124,8 @@
                             type : 'sap.ui.model.type.Date',
                             formatOptions : {
                                 pattern : 'dd MM yyyy'
-                            }
+                            },
+                            formatter: '.formatter.formatSeniority'
                         }" />
                         <Text text="{Manager}" />
                     </cells>
