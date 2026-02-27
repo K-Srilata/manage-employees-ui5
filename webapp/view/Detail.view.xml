@@ -198,7 +198,7 @@
                                 formatOptions: {
                                     pattern: 'dd MMM yyyy'
                                 }
-                            }" />
+                            }"/>
                         </VBox>
                         <VBox>
                             <Text text="{Manager}" />

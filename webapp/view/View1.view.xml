@@ -24,6 +24,7 @@
                 />
                 <Input
                     id="employeeId"
+                    value="{Empid}"
                     placeholder="Enter 2 digits"
                     maxLength="2" 
                     editable="{viewModel>/editMode}"
@@ -171,8 +172,8 @@
                     text="Reset"
                     type="Transparent"
                     press="onReset"
-                    visible="{= ${viewModel>/mode} === 'create' || 
-                    ${viewModel>/editMode}}"
+                    visible="{= ${viewModel>/mode} === 'create' 
+                    || ${viewModel>/editMode}}"
                 />
                 <Button
                     text="Cancel"
