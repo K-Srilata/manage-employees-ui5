@@ -1,5 +1,5 @@
 <mvc:View
-    controllerName="com.test.manageemployees.controller.View1"
+    controllerName="com.test.manageemployees.controller.EmpDetail"
     xmlns:mvc="sap.ui.core.mvc"
     displayBlock="true"
     xmlns="sap.m"
@@ -14,7 +14,7 @@
         <content>
             <form:SimpleForm
                 id="simpleForm"
-                editable="{viewModel>/editMode}"
+                editable="{= ${viewModel>/mode} !== 'view' }"
                 layout="ResponsiveGridLayout"
             >
                 <Label
@@ -27,7 +27,7 @@
                     value="{Empid}"
                     placeholder="Enter 2 digits"
                     maxLength="2" 
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                     liveChange="onEmpIdLiveChange"
                 />
                 <Label
@@ -38,7 +38,7 @@
                 <Input
                     id="firstName"
                     value="{Firstname}"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="middlename"
@@ -47,7 +47,7 @@
                 <Input
                     id="middleName"
                     value="{Middlename}"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="lastname"
@@ -57,7 +57,7 @@
                 <Input
                     id="lastName"
                     value="{Lastname}"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="email"
@@ -68,7 +68,7 @@
                     id="emailId"
                     type="Email"
                     value="{Emailid}"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="phonenumber"
@@ -79,7 +79,7 @@
                     type="Tel"
                     value="{Phonenumber}"
                     maxLength="10"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="dept"
@@ -94,7 +94,7 @@
                     valueLiveUpdate="true"
                     showClearIcon="true"
                     change="onDeptChange"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="date"
@@ -105,7 +105,7 @@
                     displayFormat="dd MMM yyyy"
                     valueFormat="yyyy-MM-dd"
                     dateValue="{Startdate}"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Label
                     id="manager"
@@ -132,7 +132,7 @@
                     placeholder="Select Manager"
                     showClearIcon="true"
                     selectedKey="{Manager}"
-                    editable="{viewModel>/editMode}"
+                    editable="{= ${viewModel>/mode} !== 'view' }"
                     change="onManagerChange"
                 >
                     <items>
@@ -164,23 +164,21 @@
                 />
 
                 <Button
-                    text="{= ${viewModel>/editMode} ? 'Save' : 'Edit'}"
-                    visible="{= ${viewModel>/mode} === 'edit' }"
+                    text="{= ${viewModel>/mode} === 'edit' ? 'Save' : 'Edit'}"
+                    visible="{= ${viewModel>/mode} !== 'create' }"
                     press="onEditPress"
                 />
                 <Button
                     text="Reset"
                     type="Transparent"
                     press="onReset"
-                    visible="{= ${viewModel>/mode} === 'create' 
-                    || ${viewModel>/editMode}}"
+                    visible="{= ${viewModel>/mode} !== 'view' }"
                 />
                 <Button
                     text="Cancel"
                     type="Transparent"
                     press="onCancel"
-                    visible="{= ${viewModel>/mode} === 'create' ||
-                    ${viewModel>/editMode}}"
+                    visible="{= ${viewModel>/mode} !== 'view' }"
                 />
             </Toolbar>
         </footer>

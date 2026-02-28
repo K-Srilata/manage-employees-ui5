@@ -1,5 +1,5 @@
 <mvc:View
-    controllerName="com.test.manageemployees.controller.Detail"
+    controllerName="com.test.manageemployees.controller.EmpList"
     xmlns:l="sap.ui.layout"
     xmlns:core="sap.ui.core"
     xmlns:mvc="sap.ui.core.mvc"
@@ -30,10 +30,6 @@
                     liveChange=".onSearch"
                     width="200px"
                 />
-                <Button 
-                    icon="sap-icon://sort" 
-                    press="onSort" 
-                    tooltip="Sort by Department" />
             </OverflowToolbar>
             <ToolbarSpacer />
             <!-- <SegmentedButton selectionChange="onToggleView">
@@ -60,17 +56,22 @@
                 customTextOn="List"
                 customTextOff="Table"/> -->
             <Button
-                text="create new employee"
+                text="Create New Employee"
                 press="onCreateNewEmployee"
             />
+             <Button 
+                    icon="sap-icon://sort" 
+                    press="onSort" 
+                    tooltip="Sort by Department" />
             <ToggleButton
                 id="toggleButton"
-                icon="sap-icon://lightbulb"
+                icon="sap-icon://light-mode"
                 pressed="false"
                 press=".onThemeSwitch"
                 width="50px"
                 class="sapUiSmallMargin"
             />
+           
         </Toolbar>
         <Table
             id="employeeTable"
@@ -119,13 +120,12 @@
                         <Text text="{Phonenumber}" />
                         <Text text="{Department}" />
                         <!-- <Text text="{Startdate}" /> -->
-                        <Text text = " {
+                        <Text text = "{
                             path : 'Startdate',
                             type : 'sap.ui.model.type.Date',
                             formatOptions : {
                                 pattern : 'dd MM yyyy'
-                            },
-                            formatter: '.formatter.formatSeniority'
+                            }
                         }" />
                         <Text text="{Manager}" />
                     </cells>

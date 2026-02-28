@@ -21,25 +21,24 @@ sap.ui.define(
   ) {
     "use strict";
 
-    return Controller.extend("com.test.manageemployees.controller.View1", {
+    return Controller.extend("com.test.manageemployees.controller.EmpDetail", {
       onInit: function () {
         var oViewModel = new JSONModel({
-          mode: "create",
-          editMode: false,
+          mode: "create"
         });
 
         this.getView().setModel(oViewModel, "viewModel");
 
         this.getOwnerComponent()
           .getRouter()
-          .getRoute("RouteView1")
+          .getRoute("RouteEmpDetail")
           .attachPatternMatched(this.onRouteMatched, this);
       },
       onEmpIdLiveChange: function (oEvent) {
-       var _oInput = oEvent.getSource();
-       var val = _oInput.getValue();
-      val = val.replace(/[^\d]/g, '');
-      _oInput.setValue(val);
+        var _oInput = oEvent.getSource();
+        var val = _oInput.getValue();
+        val = val.replace(/[^\d]/g, '');
+        _oInput.setValue(val);
       },
 
 
@@ -56,8 +55,10 @@ sap.ui.define(
 
         var oVM = this.getView().getModel("viewModel");
         if (sMode === "edit") {
-          oVM.setProperty("/mode", "edit");
-          oVM.setProperty("/editMode", false);
+          // oVM.setProperty("/mode", "edit");
+          oVM.setProperty("/mode", "view");
+          // oVM.setProperty("/editMode", false);
+
           //   this.getView().getModel("viewModel").setProperty("/mode", "edit");
           //   this.getView().getModel("viewModel").setProperty("/editMode", false);
           // } else {
@@ -71,7 +72,6 @@ sap.ui.define(
           console.log("Binding context:", this.getView().getBindingContext());
         } else {
           oVM.setProperty("/mode", "create");
-          oVM.setProperty("/editMode", true);
 
           // New:OData creation logic using createEntry
           var oModel = this.getOwnerComponent().getModel();
@@ -112,7 +112,7 @@ sap.ui.define(
         if (!this._pValueHelpDialog) {
           this._pValueHelpDialog = Fragment.load({
             id: this.getView().getId(),
-            name: "com.test.manageemployees.view.DeptValueHelpDailog",
+            name: "com.test.manageemployees.fragment.DeptValueHelpDialog",
             controller: this,
           }).then(
             function (oDialog) {
@@ -225,23 +225,20 @@ sap.ui.define(
               this.onReset();
               // this.getRouter().navTo("RouteDetail");
               var oRouter = this.getOwnerComponent().getRouter();
-              oRouter.navTo("RouteDetail");
+              oRouter.navTo("RouteEmpList");
             }
           }.bind(this),
         });
       },
       onEditPress: function () {
         var oVM = this.getView().getModel("viewModel");
-        var bEdit = oVM.getProperty("/editMode");
+        var sCurrentMode = oVM.getProperty("/mode");
 
-        // If already editing Save clicked
-        if (bEdit) {
+        if (sCurrentMode === "view") {
+          oVM.setProperty("/mode", "edit");
+        } else if (sCurrentMode === "edit") {
           this.onSubmit();
-          return;
         }
-
-        // else enable editing
-        oVM.setProperty("/editMode", true);
       },
       onManagerChange: function (oEvent) {
         var oCombo = oEvent.getSource();
@@ -306,7 +303,7 @@ sap.ui.define(
                 success: function () {
                   sap.m.MessageToast.show("Employee deleted successfully");
                   // Navigate back to the list view
-                  oRouter.navTo("RouteDetail");
+                  oRouter.navTo("RouteEmpList");
                 },
                 error: function (oError) {
                   sap.m.MessageBox.error(
@@ -541,7 +538,7 @@ sap.ui.define(
           oModel.create("/Zemployee_tableSet", oNewEmployee, {
             success: function () {
               sap.m.MessageToast.show("Employee saved to SAP table!");
-              this.getOwnerComponent().getRouter().navTo("RouteDetail");
+              this.getOwnerComponent().getRouter().navTo("RouteEmpList");
             }.bind(this),
             error: function () {
               sap.m.MessageBox.error("SAP refused to save the data.");
@@ -553,13 +550,12 @@ sap.ui.define(
           oModel.update(sPath, oNewEmployee, {
             success: function () {
               sap.m.MessageToast.show("Employee updated in SAP!");
-              this.getOwnerComponent().getRouter().navTo("RouteDetail");
+              this.getOwnerComponent().getRouter().navTo("RouteEmpList");
             }.bind(this),
           });
         }
 
-        this.getView().getModel("viewModel").setProperty("/editMode", false);
-        // this.getOwnerComponent().getRouter().navTo("RouteDetail");
+        this.getView().getModel("viewModel").setProperty("/mode", "view");
       },
     });
   },

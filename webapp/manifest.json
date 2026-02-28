@@ -109,36 +109,26 @@
       },
       "routes": [
         {
-          "name": "RouteView1",
-          "pattern": "view1/{mode}/{path}",
-          "target": ["TargetView1"]
-        },
-        {
-          "name": "RouteDetail",
+          "name": "RouteEmpList",
           "pattern": "",
-          "target": "TargetDetailView"
+          "target": "TargetEmpList"
         },
         {
-          "name": "EmployeeDetail",
-          "pattern": "employeedetail",
-          "target": "TargetEmployeeDetail"
+          "name": "RouteEmpDetail",
+          "pattern": "employeedetail/{mode}/{path}",
+          "target": "TargetEmpDetail"
         }
       ],
       "targets": {
-        "TargetView1": {
+        "TargetEmpDetail": {
           "viewType": "XML",
           "transition": "slide",
-          "clearControlAggregation": false,
-          "viewId": "View1",
-          "viewName": "View1"
+          "viewId": "EmpDetail",
+          "viewName": "EmpDetail"
         },
-        "TargetDetailView": {
-          "viewId": "detail",
-          "viewName": "Detail"
-        },
-        "TargetEmployeeDetail": {
-          "viewId": "employeedetail",
-          "viewName": "EmployeeDetail"
+        "TargetEmpList": {
+          "viewId": "EmpList",
+          "viewName": "EmpList"
         }
       }
     },

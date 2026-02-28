@@ -5,38 +5,19 @@ sap.ui.define(
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
-    "sap/ui/model/Sorter"
   ],
-  function (Controller, formatter, Filter, FilterOperator, MessageToast,Sorter) {
+  function (Controller, formatter, Filter, FilterOperator, MessageToast) {
     "use strict";
 
-    return Controller.extend("com.test.manageemployees.controller.Detail", {
+    return Controller.extend("com.test.manageemployees.controller.EmpList", {
       formatter: formatter,
       onInit() { },
       onCreateNewEmployee: function () {
         var oRouter = this.getOwnerComponent().getRouter();
-        oRouter.navTo("RouteView1", {
+        oRouter.navTo("RouteEmpDetail", {
           mode: "create",
           path: "new",
         });
-      },
-      onSort: function () {
-        this._bDescending = !this._bDescending;
-
-        var oSorter = new Sorter("Department", this._bDescending);
-
-        var oTable = this.byId("employeeTable")
-        var oList = this.byId("employeelist")
-
-        var oTableBinding = oTable.getBinding("items")
-        var oListBinding = oList.getBinding("items")
-
-        oTableBinding.sort(oSorter)
-        oListBinding.sort(oSorter)
-
-        var sOrder = this._bDescending ? "Descending" : "Ascending";
-
-        MessageToast.show("soerted by department: " + sOrder);
       },
       onThemeSwitch: function (oEvent) {
         const oToggleButton = oEvent.getSource();
@@ -44,7 +25,7 @@ sap.ui.define(
         const sNewTheme = bIsDarkMode ? "sap_horizon_dark" : "sap_horizon";
         sap.ui.getCore().applyTheme(sNewTheme);
         oToggleButton.setIcon(
-          bIsDarkMode ? "sap-icon://hide" : "sap-icon://lightbulb",
+          bIsDarkMode ? "sap-icon://dark-mode" : "sap-icon://light-mode",
         );
         // const oPage = this.byId("page");
         // oPage.setTitle(bIsDarkMode ? "Dark Mode" : "Light Mode");
@@ -108,10 +89,28 @@ sap.ui.define(
 
         this.getOwnerComponent()
           .getRouter()
-          .navTo("RouteView1", {
+          .navTo("RouteEmpDetail", {
             mode: "edit",
             path: encodeURIComponent(sPath),
           });
+      },
+      onSort: function () {
+        this._bDescending = !this._bDescending;
+
+        var oSorter = new sap.ui.model.Sorter("Department", this._bDescending);
+
+        var oTable = this.byId("employeeTable")
+        var oList = this.byId("employeelist")
+
+        var oTableBinding = oTable.getBinding("items")
+        var oListBinding = oList.getBinding("items")
+
+        oTableBinding.sort(oSorter)
+        oListBinding.sort(oSorter)
+
+        var sOrder = this._bDescending ? "Descending" : "Ascending";
+
+        MessageToast.show("sorted by department: " + sOrder);
       },
 
       onSearch: function (oEvent) {
