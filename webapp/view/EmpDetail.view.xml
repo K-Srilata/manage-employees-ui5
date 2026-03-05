@@ -163,11 +163,22 @@
                     visible="{= ${viewModel>/mode} === 'edit' }"
                 />
 
+                <Button text="View Checklist"
+                    visible="{= ${viewModel>/mode} !== 'create' }"
+                    press="onOpenChecklist"/>
+
+                <Button text="View Onboarding Status"
+                    visible="{= ${viewModel>/mode} !== 'create' }"
+                    press="onOpenTimeline"
+                    />
+
                 <Button
                     text="{= ${viewModel>/mode} === 'edit' ? 'Save' : 'Edit'}"
                     visible="{= ${viewModel>/mode} !== 'create' }"
+                    type="Emphasized"
                     press="onEditPress"
                 />
+                
                 <Button
                     text="Reset"
                     type="Transparent"

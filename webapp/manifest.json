@@ -48,7 +48,8 @@
       "minUI5Version": "1.108.26",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.suite.ui.commons": {}
       }
     },
     "contentDensities": {
@@ -117,6 +118,11 @@
           "name": "RouteEmpDetail",
           "pattern": "employeedetail/{mode}/{path}",
           "target": "TargetEmpDetail"
+        },
+        {
+          "name": "RouteOnboarding",
+          "pattern": "Onboarding/{path}",
+          "target": "TargetOnboarding"
         }
       ],
       "targets": {
@@ -129,6 +135,10 @@
         "TargetEmpList": {
           "viewId": "EmpList",
           "viewName": "EmpList"
+        },
+        "TargetOnboarding": {
+          "viewId": "Onboarding",
+          "viewName": "Onboarding"
         }
       }
     },

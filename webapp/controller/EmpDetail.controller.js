@@ -24,7 +24,7 @@ sap.ui.define(
     return Controller.extend("com.test.manageemployees.controller.EmpDetail", {
       onInit: function () {
         var oViewModel = new JSONModel({
-          mode: "create"
+          mode: "create",
         });
 
         this.getView().setModel(oViewModel, "viewModel");
@@ -34,13 +34,91 @@ sap.ui.define(
           .getRoute("RouteEmpDetail")
           .attachPatternMatched(this.onRouteMatched, this);
       },
+
+      onOpenChecklist: function () {
+        var oView = this.getView();
+        var oContext = oView.getBindingContext();
+
+        if (!this._pChecklistDialog) {
+          this._pChecklistDialog = Fragment.load({
+            id: oView.getId(),
+            name: "com.test.manageemployees.fragment.OnboardingChecklist",
+            controller: this,
+          }).then(function (oDialog) {
+            oView.addDependent(oDialog);
+            return oDialog; 
+          });
+        }
+
+        this._pChecklistDialog.then(function (oDialog) {
+          // Set correct binding context every time
+          oDialog.setBindingContext(oContext);
+
+          oDialog.open();
+        });
+      },
+
+      onCloseChecklist: function () {
+        this._pChecklistDialog.then(function (oDialog) {
+          oDialog.close();
+        });
+      },
+
+      onPaperworkChange: function (oEvent) {
+        this._updateOnboardingFlag(
+          "Paperwork",
+          oEvent.getParameter("selected"),
+        );
+      },
+
+      onEquipmentChange: function (oEvent) {
+        this._updateOnboardingFlag(
+          "Equipment",
+          oEvent.getParameter("selected"),
+        );
+      },
+
+      onOrientationChange: function (oEvent) {
+        this._updateOnboardingFlag(
+          "Orientation",
+          oEvent.getParameter("selected"),
+        );
+      },
+      onItAccessChange: function (oEvent) {
+        this._updateOnboardingFlag("Itaccess", oEvent.getParameter("selected"));
+      },
+      _updateOnboardingFlag: function (sProperty, bSelected) {
+        var oModel = this.getView().getModel();
+        var oContext = this.getView().getBindingContext();
+        var oPayload = {};
+        oPayload[sProperty] = bSelected ? "X" : "";
+        oModel.update(oContext.getPath(), oPayload, {
+          success: function () {
+            oModel.refresh(true);
+            sap.m.MessageToast.show("Updated successfully");
+          },
+          error: function () {
+            sap.m.MessageToast.show("Update failed");
+          },
+        });
+      },
+
+      onOpenTimeline: function () {
+        var sPath = this.getView().getBindingContext().getPath();
+
+        this.getOwnerComponent()
+          .getRouter()
+          .navTo("RouteOnboarding", {
+            path: encodeURIComponent(sPath),
+          });
+      },
+
       onEmpIdLiveChange: function (oEvent) {
         var _oInput = oEvent.getSource();
         var val = _oInput.getValue();
-        val = val.replace(/[^\d]/g, '');
+        val = val.replace(/[^\d]/g, "");
         _oInput.setValue(val);
       },
-
 
       onRouteMatched: function (oEvent) {
         var sMode = oEvent.getParameter("arguments").mode;
@@ -72,7 +150,6 @@ sap.ui.define(
           console.log("Binding context:", this.getView().getBindingContext());
         } else {
           oVM.setProperty("/mode", "create");
-
           // New:OData creation logic using createEntry
           var oModel = this.getOwnerComponent().getModel();
           var oContext = oModel.createEntry("/Zemployee_tableSet");
@@ -198,23 +275,6 @@ sap.ui.define(
           oModel.setProperty("Startdate", "", oContext);
           oModel.setProperty("Manager", "", oContext);
         }
-
-        /* OLD CODE - Cleared properties on root "/"
-        // var oModel = this.getView().getModel("employeeModel");
-        var oModel = this.getView().getModel();
-        // var oContext = this.getView().getBindingContext("employeeModel");
-        var oContext = this.getView().getBindingContext();
-        var sPath = oContext ? "" : "/";
-        // oModel.setProperty(sPath + "firstName", "", oContext);
-        oModel.setProperty(sPath + "Firstname", "", oContext);
-        oModel.setProperty(sPath + "Middlename", "", oContext);
-        oModel.setProperty(sPath + "Lastname", "", oContext);
-        oModel.setProperty(sPath + "Emailid", "", oContext);
-        oModel.setProperty(sPath + "Phonenumber", "", oContext);
-        oModel.setProperty(sPath + "Department", "", oContext);
-        oModel.setProperty(sPath + "Startdate", "", oContext);
-        oModel.setProperty(sPath + "Manager", "", oContext);
-        */
         this._clearValueStates();
       },
       onCancel: function () {
@@ -316,57 +376,8 @@ sap.ui.define(
         });
       },
       onSubmit: function () {
-        //   var oFirstNameInput = this.byId("firstName");
-        //   var sFirstName = oFirstNameInput.getValue();
-        //   var oLastNameInput = this.byId("lastName");
-        //   var sLastName = oLastNameInput.getValue();
-        //   var oEmailIdInput = this.byId("emailId");
-        //   var sEmailId = oEmailIdInput.getValue();
-        //   var oDeptInput = this.byId("department");
-        //   var sDeptValue = oDeptInput.getValue();
-        //   oFirstNameInput.setValueState("None");
-        //   oLastNameInput.setValueState("None");
-        //   oEmailIdInput.setValueState("None");
-
-        //   if(!sFirstName || !sLastName || !sEmailId || !sDeptValue) {
-        //     oFirstNameInput.setValueState("Error");
-        //     oLastNameInput.setValueState("Error");
-        //     oEmailIdInput.setValueState("Error");
-        //     oDeptInput.setValueState("Error");
-        //     MessageToast.error()
-        //   }
-
-        //   if (!sFirstName) {
-        //     oFirstNameInput.setValueState("Error");
-        //     oFirstNameInput.setValueStateText("First Name Required");
-        //     MessageToast.show("First Name is required");
-        //     return;
-        //   }
-
-        //   if (!sLastName) {
-        //     oLastNameInput.setValueState("Error");
-        //     oLastNameInput.setValueStateText("Last name Required");
-        //     MessageToast.show("Last Name is required");
-        //     return;
-        //   }
-
-        //   if (!sEmailId) {
-        //     oEmailIdInput.setValueState("Error");
-        //     oEmailIdInput.setValueStateText("Email is required");
-        //     MessageToast.show("Email required");
-        //     return;
-        //   }
-        //   if (!sDeptValue) {
-        //     oDeptInput.setValueState("Error");
-        //     oDeptInput.setValueStateText("Department is required");
-        //     MessageToast.show("Select Department");
-        //     return;
-        //   }
-
         var sMode = this.getView().getModel("viewModel").getProperty("/mode");
-
         var bValid = true;
-
         var aFields = [
           { id: "employeeId", msg: "Employee Id is required" },
           { id: "firstName", msg: "First Name is required" },
@@ -383,8 +394,10 @@ sap.ui.define(
             // var sManagerKey = oControl.getSelectedKey();
             // var sEntry = oControl.getSelectedKey ?
             //   oControl.getSelectedKey() : oControl.getValue();
-            var sEntry = (oField.id === "managerSelect") ?
-              oControl.getSelectedKey() : oControl.getValue();
+            var sEntry =
+              oField.id === "managerSelect"
+                ? oControl.getSelectedKey()
+                : oControl.getValue();
             if (!sEntry) {
               oControl.setValueState(ValueState.Error);
               oControl.setValueStateText(oField.msg);
@@ -445,38 +458,6 @@ sap.ui.define(
 
         oDeptInput.setValueState(ValueState.None);
 
-        // var oData = oEmpModel.getData();
-        // var aEmployees = oEmpModel.getProperty("/employees") || [];
-
-        // if (sMode === "create") {
-        //   var oNewEmployee = {
-        //     firstName: oData.firstName,
-        //     middleName: oData.middleName,
-        //     lastName: oData.lastName,
-        //     email: oData.email,
-        //     phone: oData.phone,
-        //     department: oData.department,
-        //     manager: oData.manager,
-        //     startDate: oData.startDate,
-        //   };
-
-        //   aEmployees.push(oNewEmployee);
-        //   oEmpModel.setProperty("/employees", aEmployees);
-
-        //   MessageToast.show("Employee created!");
-        // } else {
-        //   // //edit
-        //   // var iIndex = aEmployees.findIndex(function (emp) {
-        //   //   return emp.email === oData.email;
-        //   // });
-
-        //   // if (iIndex !== -1) {
-        //   //   aEmployees[iIndex] = oData;
-        //   //   oEmpModel.setProperty("/employees", aEmployees);
-        //   // }
-        //   MessageToast.show("Employee updated!");
-        // }
-
         // odata
         var oEmpModel = this.getView().getModel();
         // var oData = oEmpModel.getData();
@@ -485,27 +466,6 @@ sap.ui.define(
 
         var oModel = this.getView().getModel();
         var oContext = this.getView().getBindingContext();
-
-        /* OLD CODE - Included __metadata or was missing key fields
-        // New: Retrieve data from the current context (works for both CreateEntry and Edit context)
-        var oNewEmployee = oContext
-          ? oContext.getObject()
-          : {
-              Firstname: oModel.getProperty("/Firstname"),
-              Lastname: oModel.getProperty("/Lastname"),
-              Middlename: oModel.getProperty("/Middlename"),
-              Emailid: oModel.getProperty("/Emailid"),
-              Phonenumber: oModel.getProperty("/Phonenumber"),
-              Department: oModel.getProperty("/Department"),
-              Startdate: oModel.getProperty("/Startdate"),
-              Manager: oModel.getProperty("/Manager"),
-            };
-
-        // Ensure Manager is included if not in context object
-        if (oNewEmployee && !oNewEmployee.Manager) {
-          oNewEmployee.Manager = oModel.getProperty("Manager", oContext);
-        }
-        */
 
         // NEW: Manually construct sanitized payload without __metadata
         var oNewEmployee = {
@@ -522,17 +482,6 @@ sap.ui.define(
 
         console.log("Payload to be sent:", oNewEmployee);
 
-        /* Old Code - Manually fetched from root
-        var oNewEmployee = {
-          Firstname: oModel.getProperty("/Firstname"),
-          Lastname: oModel.getProperty("/Lastname"),
-          Middlename: oModel.getProperty("/Middlename"),
-          Emailid: oModel.getProperty("/Emailid"),
-          Phonenumber: oModel.getProperty("/Phonenumber"),
-          Department: oModel.getProperty("/Department"),
-          StartDate: oModel.getProperty("/Startdate")
-        };
-        */
         if (sMode === "create") {
           // 2. Call .create() to send a POST request to SAP
           oModel.create("/Zemployee_tableSet", oNewEmployee, {

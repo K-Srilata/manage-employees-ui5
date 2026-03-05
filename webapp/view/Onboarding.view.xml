@@ -1,0 +1,33 @@
+<mvc:View
+    controllerName="com.test.manageemployees.controller.Onboarding"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:c="sap.suite.ui.commons"
+>
+    <Page
+        title="Onboarding Status">
+        <content>
+            <ObjectHeader
+                title="{Firstname} {Lastname}"
+                number="{Empid}"
+                numberUnit="Employee ID"
+                intro="{Departement}"
+            />
+            <c:Timeline
+                id="idTimeline" 
+                enableDoubleSided="true"
+                showIcons="true"
+                content="{
+                    path:'timelineModel>/items'
+                }">
+                <c:TimelineItem
+                    id="idTemplateItem"
+                    title="{timelineModel>title}"
+                    text="{timelineModel>description}"
+                    status="{timelineModel>state}"
+                    icon="{timelineModel>icon}"
+                />
+            </c:Timeline>
+        </content>
+    </Page>
+</mvc:View>
